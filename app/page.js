@@ -3,6 +3,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
+import LockScreen from "../components/LockScreen";
+import Header from "../components/Header";
+import MetricCard from "../components/MetricCard";
+import OpportunityCard from "../components/OpportunityCard";
+import Sidebar from "../components/Sidebar";
+
 const ATLAS_PASSKEY = process.env.NEXT_PUBLIC_ATLAS_PASSKEY;
 
 export default function Home() {
@@ -29,31 +35,17 @@ export default function Home() {
 
   if (!unlocked) {
     return (
-      <main className="lock-screen">
-        <div className="lock-card">
-          <h1>ATLAS OS</h1>
-          <p>Secure Market Intelligence Access</p>
-
-          <input
-            type="password"
-            placeholder="Enter Passkey"
-            value={enteredPasskey}
-            onChange={(e) => setEnteredPasskey(e.target.value)}
-          />
-
-          <button
-            onClick={() => {
-              if (enteredPasskey === ATLAS_PASSKEY) {
-                setUnlocked(true);
-              } else {
-                alert("Incorrect passkey.");
-              }
-            }}
-          >
-            Unlock Atlas
-          </button>
-        </div>
-      </main>
+      <LockScreen
+        enteredPasskey={enteredPasskey}
+        setEnteredPasskey={setEnteredPasskey}
+        unlock={() => {
+          if (enteredPasskey === ATLAS_PASSKEY) {
+            setUnlocked(true);
+          } else {
+            alert("Incorrect passkey.");
+          }
+        }}
+      />
     );
   }
 
@@ -76,116 +68,35 @@ export default function Home() {
     : 0;
 
   return (
-    <main className="atlas-shell">
-      <header className="atlas-header">
-        <div>
-          <h1>ATLAS OS</h1>
-          <p>RESALE + TCG INTELLIGENCE COMMAND CENTER</p>
-        </div>
+    <div className="app-frame">
+      <Sidebar module={module} setModule={setModule} />
 
-        <div className="system-pill">● SYSTEM ONLINE</div>
-      </header>
+      <main className="atlas-shell">
+        <Header />
 
-      <div className="module-tabs">
-        <button
-          className={module === "resale" ? "active" : ""}
-          onClick={() => setModule("resale")}
-        >
-          💰 Resale Module
-        </button>
+        <section className="grid">
+          <MetricCard title="ACTIVE ITEMS" value={filtered.length} icon="📦" />
+          <MetricCard title="AVG SCORE" value={avgScore} icon="⭐" />
+          <MetricCard title="BEST SCORE" value={bestScore} icon="🔥" />
+          <MetricCard title="MODULE" value={module.toUpperCase()} icon="🧠" />
+        </section>
 
-        <button
-          className={module === "tcg" ? "active" : ""}
-          onClick={() => setModule("tcg")}
-        >
-          🃏 TCG Module
-        </button>
-      </div>
+        <section className="panel">
+          <h2>
+            {module === "resale"
+              ? "LIVE RESALE INTELLIGENCE"
+              : "LIVE TCG INTELLIGENCE"}
+          </h2>
 
-      <section className="grid">
-        <Metric title="ACTIVE ITEMS" value={filtered.length} icon="📦" />
-        <Metric title="AVG SCORE" value={avgScore} icon="⭐" />
-        <Metric title="BEST SCORE" value={bestScore} icon="🔥" />
-        <Metric title="MODULE" value={module.toUpperCase()} icon="🧠" />
-      </section>
-
-      <section className="panel">
-        <h2>
-          {module === "resale"
-            ? "LIVE RESALE INTELLIGENCE"
-            : "LIVE TCG INTELLIGENCE"}
-        </h2>
-
-        {filtered.length === 0 ? (
-          <p className="muted">No opportunities found for this module yet.</p>
-        ) : (
-          filtered.map((item) => <OpportunityCard key={item.id} item={item} />)
-        )}
-      </section>
-    </main>
-  );
-}
-
-function Metric({ title, value, icon }) {
-  return (
-    <div className="metric-card">
-      <div className="metric-label">
-        {icon} {title}
-      </div>
-      <h2>{value}</h2>
-    </div>
-  );
-}
-
-function OpportunityCard({ item }) {
-  const score = item.confidence_score || 0;
-
-  let badge = "WATCH";
-  if (score >= 90) badge = "BUY";
-  else if (score >= 75) badge = "STRONG";
-  else if (score >= 55) badge = "WATCH";
-
-  return (
-    <div className="opportunity-card">
-      <div className="opportunity-main">
-        <div className="top-line">
-          <span className="brand">{item.brand}</span>
-          <span className={`recommendation ${badge.toLowerCase()}`}>
-            {badge}
-          </span>
-        </div>
-
-        <h3>{item.item_name}</h3>
-
-        <p className="reason">
-          {item.atlas_reason || "Atlas is still learning why this matters."}
-        </p>
-
-        <div className="mini-signals">
-          <span>Market: {item.market_signal_status || "watch"}</span>
-          <span>Action: {item.recommended_action || "Review"}</span>
-        </div>
-      </div>
-
-      <div className="score-block">
-        <span>Atlas Score</span>
-        <strong>{score}</strong>
-        <small>/100</small>
-      </div>
-
-      <div className="action-block">
-        {item.ebay_sold_comps_url && (
-          <a href={item.ebay_sold_comps_url} target="_blank">
-            eBay Solds
-          </a>
-        )}
-
-        {item.official_url && (
-          <a href={item.official_url} target="_blank">
-            Official Source
-          </a>
-        )}
-      </div>
+          {filtered.length === 0 ? (
+            <p className="muted">No opportunities found for this module yet.</p>
+          ) : (
+            filtered.map((item) => (
+              <OpportunityCard key={item.id} item={item} />
+            ))
+          )}
+        </section>
+      </main>
     </div>
   );
 }
