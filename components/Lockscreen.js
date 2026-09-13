@@ -1,22 +1,44 @@
-export default function LockScreen({
-  enteredPasskey,
-  setEnteredPasskey,
-  unlock,
-}) {
+"use client";
+
+import { useState } from "react";
+import { supabase } from "../lib/supabase";
+
+export default function LockScreen() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function signIn() {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      alert(error.message);
+    }
+  }
+
   return (
     <main className="lock-screen">
       <div className="lock-card">
-        <h1>ATLAS OS</h1>
-        <p>Secure Market Intelligence Access</p>
+        <h1 className="lock-logo">NoMo</h1>
+        <p className="lock-tagline">nothiing & more</p>
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
         <input
           type="password"
-          placeholder="Enter Passkey"
-          value={enteredPasskey}
-          onChange={(e) => setEnteredPasskey(e.target.value)}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button onClick={unlock}>Unlock Atlas</button>
+        <button onClick={signIn}>Sign In</button>
       </div>
     </main>
   );
