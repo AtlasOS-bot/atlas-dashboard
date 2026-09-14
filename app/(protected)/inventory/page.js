@@ -8,6 +8,7 @@ import InventoryDetailPanel from "../../../components/InventoryDetailPanel";
 import InventoryEmptyState from "../../../components/InventoryEmptyState";
 import AddItemPanel from "../../../components/AddItemPanel";
 import EditItemPanel from "../../../components/EditItemPanel";
+import InventoryMetrics from "../../../components/InventoryMetrics";
 import { devLog } from "../../../lib/devLog";
 
 const SORT_OPTIONS = [
@@ -141,6 +142,7 @@ function MasterInventoryPageInner() {
         notes,
         status,
         product_link,
+        created_at,
         brand:brands(name),
         category:categories(name),
         subcategory:subcategories(name),
@@ -210,6 +212,8 @@ function MasterInventoryPageInner() {
 
   return (
     <div className="inventory-page">
+      <InventoryMetrics products={products} />
+
       <div className="inventory-toolbar">
         <input
           type="text"

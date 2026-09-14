@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import LockScreen from "../../components/LockScreen";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
+import PresenceTracker from "../../components/PresenceTracker";
 import { ModuleProvider } from "../../lib/moduleContext";
 import { CurrentUserProvider } from "../../lib/currentUserContext";
 import { getPersonForEmail } from "../../lib/currentUser";
@@ -44,6 +45,7 @@ export default function ProtectedLayout({ children }) {
   return (
     <CurrentUserProvider email={email} person={person}>
       <ModuleProvider>
+        <PresenceTracker />
         <div className="app-frame">
           <Suspense fallback={null}>
             <Sidebar />
