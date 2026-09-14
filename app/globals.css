@@ -1613,9 +1613,30 @@ img {
 }
 
 @media (max-width: 700px) {
+  /* Each row section becomes invisible to layout so its cards flow
+     directly into .metrics-dashboard's own 2-column grid below — this
+     is what lets 9 cards across 3 row groups reflow as one continuous
+     [1,2][3,4]...[9] sequence instead of 3 separate mini-grids. */
   .metrics-row {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
+    display: contents;
+  }
+
+  .metrics-dashboard {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .metrics-dashboard .metric-card {
+    padding: 12px;
+  }
+
+  .metrics-dashboard .metric-label {
+    font-size: 10px;
+  }
+
+  .metrics-dashboard .metric-card h2 {
+    font-size: 20px;
+    margin-top: 8px;
   }
 }
