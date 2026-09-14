@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
-import InventoryTable from "../../../components/InventoryTable";
+import InventoryTable, { displayedQuantity } from "../../../components/InventoryTable";
 import InventoryDetailPanel from "../../../components/InventoryDetailPanel";
 import InventoryEmptyState from "../../../components/InventoryEmptyState";
 import AddItemPanel from "../../../components/AddItemPanel";
@@ -14,6 +14,15 @@ import { devLog } from "../../../lib/devLog";
 const SORT_OPTIONS = [
   { value: "name_asc", label: "Alphabetical (A–Z)" },
   { value: "name_desc", label: "Alphabetical (Z–A)" },
+  // Quantity/price here always reflect whichever tab is currently active —
+  // see compareProducts's "quantity_desc"/"quantity_asc" cases, which use
+  // the same displayedQuantity() the list itself renders with, and
+  // "price_desc"/"price_asc", which use market_price (the existing
+  // per-unit expected selling price field).
+  { value: "quantity_desc", label: "Quantity (High → Low)" },
+  { value: "quantity_asc", label: "Quantity (Low → High)" },
+  { value: "price_desc", label: "Price (High → Low)" },
+  { value: "price_asc", label: "Price (Low → High)" },
   { value: "inventory_id", label: "Inventory ID" },
   { value: "category", label: "Category" },
   { value: "brand", label: "Brand" },
@@ -40,7 +49,7 @@ function compareValues(a, b) {
   return a - b;
 }
 
-function compareProducts(a, b, sortBy) {
+function compareProducts(a, b, sortBy, activeTab) {
   if (a.status !== b.status) {
     return a.status === "Out of Stock" ? 1 : -1;
   }
@@ -50,6 +59,24 @@ function compareProducts(a, b, sortBy) {
   switch (sortBy) {
     case "name_desc":
       primary = -compareValues(a.item_name, b.item_name);
+      break;
+    case "quantity_desc":
+      primary = -compareValues(
+        displayedQuantity(a, activeTab),
+        displayedQuantity(b, activeTab)
+      );
+      break;
+    case "quantity_asc":
+      primary = compareValues(
+        displayedQuantity(a, activeTab),
+        displayedQuantity(b, activeTab)
+      );
+      break;
+    case "price_desc":
+      primary = -compareValues(a.market_price, b.market_price);
+      break;
+    case "price_asc":
+      primary = compareValues(a.market_price, b.market_price);
       break;
     case "inventory_id":
       primary = compareValues(a.inventory_id, b.inventory_id);
@@ -184,8 +211,8 @@ function MasterInventoryPageInner() {
   }, []);
 
   const sorted = useMemo(() => {
-    return [...products].sort((a, b) => compareProducts(a, b, sortBy));
-  }, [products, sortBy]);
+    return [...products].sort((a, b) => compareProducts(a, b, sortBy, activeTab));
+  }, [products, sortBy, activeTab]);
 
   // Master shows every item regardless of ownership split. N/M each show
   // only items that person actually owns any quantity of — the underlying

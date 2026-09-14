@@ -1,9 +1,11 @@
 // The list/card views show one "Quantity" number per item, unlike the
 // detail panel which already breaks N/M/Shared/Total out separately. That
-// single number reflects the explicit Default/Show N/Show M view chosen
-// in the inventory toolbar — never who is logged in. Account identity is
+// single number reflects the explicit Master/N/M tab chosen in the
+// inventory toolbar — never who is logged in. Account identity is
 // authentication only and must not affect this.
-function displayedQuantity(product, quantityView) {
+// Exported so the page's quantity-sort options can use the exact same
+// tab→field mapping as the displayed quantity, instead of a second copy.
+export function displayedQuantity(product, quantityView) {
   if (quantityView === "n") return product.n_quantity;
   if (quantityView === "m") return product.m_quantity;
   return product.total_quantity;
