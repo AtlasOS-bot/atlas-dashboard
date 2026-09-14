@@ -273,46 +273,74 @@ body {
 @media (max-width: 700px) {
   .atlas-shell {
     padding: 22px;
+    padding-top: 76px;
     padding-bottom: 90px;
   }
 
+  /* Fixed (not sticky) so it can't be broken by any ancestor's overflow
+     (see the belt-and-suspenders `body { overflow-x: hidden }` below,
+     which forces body into a scroll container that sticky positioning
+     doesn't reliably survive on mobile browsers). left/right: 0 lets the
+     background span edge-to-edge regardless of .atlas-shell's own
+     padding, since fixed position escapes the parent's box entirely. */
   .atlas-header {
-    position: sticky;
+    position: fixed;
     top: 0;
-    z-index: 10;
-    padding: 14px 0 16px 60px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 30;
+    min-height: 60px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px 10px 60px;
+    margin-bottom: 0;
     background: rgba(2, 6, 23, 0.92);
     backdrop-filter: blur(16px);
-    display: block;
+  }
+
+  .atlas-header > div:first-child {
+    min-width: 0;
+    overflow: hidden;
   }
 
   .atlas-header h1 {
-    font-size: 30px;
-    letter-spacing: 3px;
-    line-height: 1.05;
+    font-size: 18px;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .header-actions {
-    margin-top: 10px;
-    flex-wrap: wrap;
+    flex-shrink: 0;
+    gap: 8px;
   }
 
   .sign-out-button {
-    padding: 10px 14px;
-    min-height: 44px;
+    padding: 8px 12px;
+    min-height: 40px;
+    font-size: 13px;
   }
 
   .atlas-header p {
-    font-size: 12px;
-    line-height: 1.4;
-    letter-spacing: 1px;
+    font-size: 9px;
+    line-height: 1.2;
+    letter-spacing: 0.5px;
+    margin: 2px 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .system-pill {
     display: inline-block;
-    margin-top: 10px;
-    font-size: 12px;
-    padding: 8px 12px;
+    font-size: 10px;
+    padding: 6px 10px;
   }
 
   .module-tabs {
