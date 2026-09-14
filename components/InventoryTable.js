@@ -1,4 +1,19 @@
+import { useCurrentUser } from "../lib/currentUserContext";
+
+// The list/card views show one "Quantity" number per item, unlike the
+// detail panel which already breaks N/M/Shared/Total out separately. That
+// single number should reflect whichever person is currently signed in;
+// any other account (unmapped, or none) falls back to the existing
+// combined total_quantity behavior, unchanged.
+function displayedQuantity(product, person) {
+  if (person === "N") return product.n_quantity;
+  if (person === "M") return product.m_quantity;
+  return product.total_quantity;
+}
+
 export default function InventoryTable({ products, onRowClick }) {
+  const { person } = useCurrentUser();
+
   return (
     <>
       {/* Desktop table — unchanged, hidden on phones via CSS */}
@@ -43,7 +58,7 @@ export default function InventoryTable({ products, onRowClick }) {
                   <td className="inventory-name-cell" title={product.item_name}>
                     {product.item_name}
                   </td>
-                  <td>{product.total_quantity}</td>
+                  <td>{displayedQuantity(product, person)}</td>
                   <td>
                     <span
                       className={
@@ -105,7 +120,7 @@ export default function InventoryTable({ products, onRowClick }) {
                     {product.status}
                   </span>
                   <span className="inventory-card-qty">
-                    Qty: {product.total_quantity}
+                    Qty: {displayedQuantity(product, person)}
                   </span>
                 </div>
 
