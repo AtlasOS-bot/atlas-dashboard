@@ -15,7 +15,6 @@ export default function InventoryMetrics({ products }) {
     itemsSold: 0,
     revenueEarned: 0,
     profitEarned: 0,
-    costOfSoldInventory: 0,
   });
 
   useEffect(() => {
@@ -84,15 +83,6 @@ export default function InventoryMetrics({ products }) {
           title="Profit Earned"
           value={formatCurrency(salesMetrics.profitEarned)}
           icon="💵"
-        />
-      </section>
-
-      {/* New: Cost of Sold Inventory */}
-      <section className="metrics-row metrics-row-single">
-        <MetricCard
-          title="Cost of Sold Inventory"
-          value={formatCurrency(salesMetrics.costOfSoldInventory)}
-          icon="🧾"
         />
       </section>
     </div>

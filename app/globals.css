@@ -1612,10 +1612,6 @@ img {
   margin-bottom: 16px;
 }
 
-.metrics-row-single {
-  grid-template-columns: 1fr;
-}
-
 @media (max-width: 700px) {
   .metrics-row {
     grid-template-columns: 1fr;
