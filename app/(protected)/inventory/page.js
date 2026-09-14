@@ -114,6 +114,11 @@ function MasterInventoryPageInner() {
   const [queryError, setQueryError] = useState("");
   const [search, setSearch] = useState(() => searchParams.get("category") || "");
   const [sortBy, setSortBy] = useState("name_asc");
+  // Which of the three organization-wide views is showing: "master" (every
+  // item, combined N+M quantity), "n" (N-owned items, N's quantity), or "m"
+  // (M-owned items, M's quantity). Plain page state, independent of login —
+  // resets to "master" on every load/navigation, no persistence.
+  const [activeTab, setActiveTab] = useState("master");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const [showAddItem, setShowAddItem] = useState(false);
@@ -182,11 +187,25 @@ function MasterInventoryPageInner() {
     return [...products].sort((a, b) => compareProducts(a, b, sortBy));
   }, [products, sortBy]);
 
+  // Master shows every item regardless of ownership split. N/M each show
+  // only items that person actually owns any quantity of — the underlying
+  // product list is the same shared data in all three cases, just filtered
+  // differently for display.
+  const tabFiltered = useMemo(() => {
+    if (activeTab === "n") {
+      return sorted.filter((product) => Number(product.n_quantity || 0) > 0);
+    }
+    if (activeTab === "m") {
+      return sorted.filter((product) => Number(product.m_quantity || 0) > 0);
+    }
+    return sorted;
+  }, [sorted, activeTab]);
+
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return sorted;
+    if (!term) return tabFiltered;
 
-    return sorted.filter((product) => {
+    return tabFiltered.filter((product) => {
       const platformNames = (product.product_platforms || [])
         .map((pp) => pp.platform?.name || "")
         .join(" ");
@@ -208,11 +227,37 @@ function MasterInventoryPageInner() {
 
       return haystack.includes(term);
     });
-  }, [sorted, search]);
+  }, [tabFiltered, search]);
 
   return (
     <div className="inventory-page">
       <InventoryMetrics products={products} />
+
+      <div className="inventory-tabs">
+        <button
+          type="button"
+          className={
+            activeTab === "master" ? "inventory-tab active" : "inventory-tab"
+          }
+          onClick={() => setActiveTab("master")}
+        >
+          Master Inventory
+        </button>
+        <button
+          type="button"
+          className={activeTab === "n" ? "inventory-tab active" : "inventory-tab"}
+          onClick={() => setActiveTab("n")}
+        >
+          N Inventory
+        </button>
+        <button
+          type="button"
+          className={activeTab === "m" ? "inventory-tab active" : "inventory-tab"}
+          onClick={() => setActiveTab("m")}
+        >
+          M Inventory
+        </button>
+      </div>
 
       <div className="inventory-toolbar">
         <input
@@ -252,7 +297,11 @@ function MasterInventoryPageInner() {
       ) : filtered.length === 0 ? (
         <p className="inventory-no-results">No items match your search.</p>
       ) : (
-        <InventoryTable products={filtered} onRowClick={setSelectedProduct} />
+        <InventoryTable
+          products={filtered}
+          onRowClick={setSelectedProduct}
+          quantityView={activeTab}
+        />
       )}
 
       {selectedProduct && (

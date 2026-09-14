@@ -763,6 +763,28 @@ body {
   white-space: nowrap;
 }
 
+.inventory-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.inventory-tab {
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 249, 255, 0.4);
+  background: rgba(0, 255, 255, 0.04);
+  color: #7df9ff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.inventory-tab.active {
+  background: rgba(0, 255, 255, 0.18);
+  box-shadow: 0 0 24px rgba(0, 255, 255, 0.25);
+}
+
 .inventory-loading,
 .inventory-no-results {
   color: rgba(255, 255, 255, 0.6);
@@ -1587,6 +1609,7 @@ img {
   .inventory-search,
   .inventory-sort-select,
   .inventory-add-button,
+  .inventory-tab,
   .form-input,
   .form-select,
   .form-textarea,

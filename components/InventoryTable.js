@@ -1,19 +1,15 @@
-import { useCurrentUser } from "../lib/currentUserContext";
-
 // The list/card views show one "Quantity" number per item, unlike the
 // detail panel which already breaks N/M/Shared/Total out separately. That
-// single number should reflect whichever person is currently signed in;
-// any other account (unmapped, or none) falls back to the existing
-// combined total_quantity behavior, unchanged.
-function displayedQuantity(product, person) {
-  if (person === "N") return product.n_quantity;
-  if (person === "M") return product.m_quantity;
+// single number reflects the explicit Default/Show N/Show M view chosen
+// in the inventory toolbar — never who is logged in. Account identity is
+// authentication only and must not affect this.
+function displayedQuantity(product, quantityView) {
+  if (quantityView === "n") return product.n_quantity;
+  if (quantityView === "m") return product.m_quantity;
   return product.total_quantity;
 }
 
-export default function InventoryTable({ products, onRowClick }) {
-  const { person } = useCurrentUser();
-
+export default function InventoryTable({ products, onRowClick, quantityView }) {
   return (
     <>
       {/* Desktop table — unchanged, hidden on phones via CSS */}
@@ -58,7 +54,7 @@ export default function InventoryTable({ products, onRowClick }) {
                   <td className="inventory-name-cell" title={product.item_name}>
                     {product.item_name}
                   </td>
-                  <td>{displayedQuantity(product, person)}</td>
+                  <td>{displayedQuantity(product, quantityView)}</td>
                   <td>
                     <span
                       className={
@@ -120,7 +116,7 @@ export default function InventoryTable({ products, onRowClick }) {
                     {product.status}
                   </span>
                   <span className="inventory-card-qty">
-                    Qty: {displayedQuantity(product, person)}
+                    Qty: {displayedQuantity(product, quantityView)}
                   </span>
                 </div>
 
