@@ -1691,3 +1691,463 @@ img {
     margin-top: 8px;
   }
 }
+
+/* ===========================================================
+   HOME COMMAND CENTER
+   =========================================================== */
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Entrance animation for the hero and the modules grid as a whole,
+   gated entirely behind prefers-reduced-motion: when a user has reduced
+   motion set, none of this runs and everything renders in place
+   immediately. */
+@media (prefers-reduced-motion: no-preference) {
+  .home-page > * {
+    opacity: 0;
+    animation: homeFadeUp 0.5s ease forwards;
+  }
+
+  .home-page > *:nth-child(1) { animation-delay: 0s; }
+  .home-page > *:nth-child(2) { animation-delay: 0.1s; }
+}
+
+@keyframes homeFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Hero --- */
+
+.home-hero {
+  position: relative;
+  border: 1px solid rgba(125, 249, 255, 0.35);
+  border-radius: 24px;
+  padding: 32px 36px;
+  background: rgba(0, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.home-hero-glow {
+  position: absolute;
+  inset: -40% -10% auto -10%;
+  height: 220px;
+  background: radial-gradient(circle, rgba(0, 255, 255, 0.18), transparent 70%);
+  pointer-events: none;
+}
+
+.home-hero-content {
+  position: relative;
+}
+
+.home-hero-eyebrow {
+  color: #7df9ff;
+  letter-spacing: 4px;
+  font-size: 13px;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+}
+
+.home-hero-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.home-hero-person {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(125, 249, 255, 0.5);
+  color: #7df9ff;
+  font-weight: bold;
+  font-size: 18px;
+  box-shadow: 0 0 18px rgba(0, 255, 255, 0.15);
+}
+
+.home-hero-divider {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.home-hero-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #22c55e;
+  letter-spacing: 1px;
+  font-size: 13px;
+}
+
+.home-hero-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+}
+
+.home-hero-quarter {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+/* --- Generic module card (every Home module is built on this) ---
+   Compact command-center tile: fixed-ish min-height, internal flex
+   column so content (checklist/notes lists) can grow within the tile
+   and scroll internally rather than stretching the whole grid row. */
+
+.home-card {
+  border: 1px solid rgba(125, 249, 255, 0.25);
+  border-radius: 16px;
+  background: rgba(0, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  padding: 14px 16px;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-card:hover {
+  border-color: rgba(125, 249, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+}
+
+.home-card-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.home-card-title {
+  color: #7df9ff;
+  letter-spacing: 1.2px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.home-card-icon {
+  font-size: 13px;
+}
+
+.home-card-tag {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+.home-placeholder-text {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Quarter Objective — same compact tile, slightly bigger typography for
+   visual prominence rather than extra width, keeping the 2-column grid
+   dense. */
+
+.home-card-large .home-card-title {
+  font-size: 12px;
+}
+
+.home-card-large .objective-headline,
+.home-card-large .objective-headline-empty {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.objective-headline {
+  color: white;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: text;
+  margin: 0;
+}
+
+.objective-headline-empty {
+  color: rgba(255, 255, 255, 0.35);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.objective-headline-input {
+  width: 100%;
+  min-height: 60px;
+  background: rgba(0, 255, 255, 0.06);
+  border: 1px solid rgba(125, 249, 255, 0.4);
+  border-radius: 10px;
+  color: white;
+  padding: 10px;
+  font: inherit;
+  resize: vertical;
+}
+
+.objective-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.objective-checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  max-height: 108px;
+}
+
+.objective-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.objective-item-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.objective-item-text {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.objective-item-text.done {
+  color: rgba(255, 255, 255, 0.35);
+  text-decoration: line-through;
+}
+
+.objective-item-author {
+  font-size: 11px;
+  color: #7df9ff;
+  border: 1px solid rgba(125, 249, 255, 0.3);
+  border-radius: 999px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+}
+
+.objective-item-delete {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  font-size: 13px;
+  flex-shrink: 0;
+  padding: 4px;
+}
+
+.objective-add-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.objective-add-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(125, 249, 255, 0.3);
+  background: rgba(0, 255, 255, 0.04);
+  color: white;
+  font-size: 13px;
+}
+
+.objective-add-button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #7df9ff;
+  background: rgba(0, 255, 255, 0.08);
+  color: #7df9ff;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* --- Shared notes --- */
+
+.shared-notes-add {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.shared-notes-input {
+  flex: 1;
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(125, 249, 255, 0.3);
+  background: rgba(0, 255, 255, 0.04);
+  color: white;
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.shared-notes-add-button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #7df9ff;
+  background: rgba(0, 255, 255, 0.1);
+  color: #7df9ff;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.shared-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.shared-note {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.shared-note-author {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #7df9ff;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.shared-note-body {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 8px;
+  cursor: text;
+}
+
+.shared-note-delete {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* --- Worth Knowing --- */
+
+.worth-knowing-question {
+  color: white;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.worth-knowing-answer {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.worth-knowing-reveal {
+  background: transparent;
+  border: 1px dashed rgba(125, 249, 255, 0.4);
+  border-radius: 8px;
+  color: #7df9ff;
+  padding: 8px 14px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+/* --- Information command center grid ---
+   Every Home module (AI briefing, all 4 objectives, notes, curated
+   content, placeholders) is a direct child of this ONE grid — compact
+   2-column tiles by default. Only Shared Notes (needs room to stay
+   functional) spans both columns via .home-card-wide; everything else,
+   including the visually-emphasized Quarter objective, stays a single
+   compact tile so many modules are visible at once. */
+
+.home-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-flow: row dense;
+  gap: 14px;
+}
+
+.home-modules-grid .home-card-wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 700px) {
+  .home-hero {
+    padding: 22px 20px;
+  }
+
+  .home-hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+
+  .home-modules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-modules-grid .home-card-wide {
+    grid-column: span 1;
+  }
+
+  .shared-notes-add {
+    flex-direction: column;
+  }
+}

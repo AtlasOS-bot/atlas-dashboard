@@ -1,70 +1,67 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
-
-import MetricCard from "../../components/MetricCard";
-import OpportunityCard from "../../components/OpportunityCard";
-import { useModule } from "../../lib/moduleContext";
+import HomeHero from "../../components/home/HomeHero";
+import AiDailyBriefing from "../../components/home/AiDailyBriefing";
+import ObjectivesSection from "../../components/home/ObjectivesSection";
+import SharedNotes from "../../components/home/SharedNotes";
+import WorthKnowing from "../../components/home/WorthKnowing";
+import RandomFact from "../../components/home/RandomFact";
+import DailyChallenge from "../../components/home/DailyChallenge";
+import InterestingHistory from "../../components/home/InterestingHistory";
+import PlaceholderModule from "../../components/home/PlaceholderModule";
 
 export default function Home() {
-  const [opportunities, setOpportunities] = useState([]);
-  const { module } = useModule();
-
-  useEffect(() => {
-    async function loadData() {
-      const { data } = await supabase
-        .from("opportunities")
-        .select("*")
-        .order("confidence_score", { ascending: false })
-        .limit(50);
-
-      setOpportunities(data || []);
-    }
-
-    loadData();
-  }, []);
-
-  const tcgTerms = ["pokemon", "pokémon", "lorcana", "tcg", "card"];
-  const filtered = opportunities.filter((item) => {
-    const text = `${item.brand || ""} ${item.item_name || ""}`.toLowerCase();
-    const isTcg = tcgTerms.some((term) => text.includes(term));
-    return module === "tcg" ? isTcg : !isTcg;
-  });
-
-  const avgScore = filtered.length
-    ? Math.round(
-        filtered.reduce((sum, item) => sum + (item.confidence_score || 0), 0) /
-          filtered.length
-      )
-    : 0;
-
-  const bestScore = filtered.length
-    ? Math.max(...filtered.map((item) => item.confidence_score || 0))
-    : 0;
-
   return (
-    <>
-      <section className="grid">
-        <MetricCard title="ACTIVE ITEMS" value={filtered.length} icon="📦" />
-        <MetricCard title="AVG SCORE" value={avgScore} icon="⭐" />
-        <MetricCard title="BEST SCORE" value={bestScore} icon="🔥" />
-        <MetricCard title="MODULE" value={module.toUpperCase()} icon="🧠" />
-      </section>
+    <div className="home-page">
+      <HomeHero />
 
-      <section className="panel">
-        <h2>
-          {module === "resale"
-            ? "LIVE RESALE INTELLIGENCE"
-            : "LIVE TCG INTELLIGENCE"}
-        </h2>
-
-        {filtered.length === 0 ? (
-          <p className="muted">No opportunities found for this module yet.</p>
-        ) : (
-          filtered.map((item) => <OpportunityCard key={item.id} item={item} />)
-        )}
-      </section>
-    </>
+      <div className="home-modules-grid">
+        <AiDailyBriefing />
+        <ObjectivesSection />
+        <SharedNotes />
+        <WorthKnowing />
+        <RandomFact />
+        <DailyChallenge />
+        <InterestingHistory />
+        <PlaceholderModule
+          title="BUSINESS TRENDS"
+          icon="📈"
+          description="Retail, consumer behavior, and e-commerce shifts will surface here once a data source is connected."
+        />
+        <PlaceholderModule
+          title="RESALE TRENDS"
+          icon="🔁"
+          description="Categories heating up or cooling down, and price movement, will surface here once connected."
+        />
+        <PlaceholderModule
+          title="POKÉMON MARKET"
+          icon="🃏"
+          description="Notable price movement, hot products, and upcoming releases will surface here once connected."
+        />
+        <PlaceholderModule
+          title="CALENDAR"
+          icon="🗓️"
+          description="Business dates, releases, and planned objectives will surface here."
+        />
+        <PlaceholderModule
+          title="GOALS"
+          icon="🧭"
+          description="Longer-term ongoing goals will live here, separate from the objective ladder above."
+        />
+        <PlaceholderModule
+          title="LOCAL EVENTS"
+          icon="📍"
+          description="Location-aware events will surface here once a source is connected."
+        />
+        <PlaceholderModule
+          title="FINANCIAL PROGRESS"
+          icon="💹"
+          description="A progress-oriented view of NoMo's trajectory over time — not a duplicate of the Inventory dashboard's metrics."
+        />
+        <PlaceholderModule
+          title="PERSONAL PRODUCTIVITY"
+          icon="⚡"
+          description="Objective completion, consistency, and activity trends will surface here."
+        />
+      </div>
+    </div>
   );
 }
