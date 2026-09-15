@@ -113,6 +113,7 @@ export default function Sidebar() {
     });
   }
 
+  const isHomeRoute = pathname === "/";
   const isInventoryRoute = pathname === "/inventory";
   const isSettingsRoute = pathname === "/settings";
   const activeCategory = searchParams.get("category");
@@ -165,6 +166,14 @@ export default function Sidebar() {
             ✕
           </button>
         </div>
+
+        <Link
+          href="/"
+          className={isHomeRoute ? "sidebar-subitem side-active" : "sidebar-subitem"}
+          title="Home"
+        >
+          🏠 {!collapsed && "Home"}
+        </Link>
 
         <button
           className={module === "resale" ? "side-active" : ""}
