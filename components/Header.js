@@ -5,7 +5,7 @@ export default function Header() {
     <header className="atlas-header">
       <div>
         <h1>NoMo</h1>
-        <p>N & M Inventory Intelligence</p>
+        <p>Nothiing &amp; More</p>
       </div>
 
       <div className="header-actions">
