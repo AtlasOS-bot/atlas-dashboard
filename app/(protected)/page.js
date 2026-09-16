@@ -1,9 +1,6 @@
 import HomeHero from "../../components/home/HomeHero";
 import ObjectivesSection from "../../components/home/ObjectivesSection";
 import SharedNotes from "../../components/home/SharedNotes";
-import RandomFact from "../../components/home/RandomFact";
-import DailyChallenge from "../../components/home/DailyChallenge";
-import InterestingHistory from "../../components/home/InterestingHistory";
 import CalendarModule from "../../components/home/CalendarModule";
 import PlaceholderModule from "../../components/home/PlaceholderModule";
 
@@ -15,24 +12,6 @@ export default function Home() {
       <div className="home-modules-grid">
         <ObjectivesSection />
         <SharedNotes />
-        <RandomFact />
-        <DailyChallenge />
-        <InterestingHistory />
-        <PlaceholderModule
-          title="BUSINESS TRENDS"
-          icon="📈"
-          description="Retail, consumer behavior, and e-commerce shifts will surface here once a data source is connected."
-        />
-        <PlaceholderModule
-          title="RESALE TRENDS"
-          icon="🔁"
-          description="Categories heating up or cooling down, and price movement, will surface here once connected."
-        />
-        <PlaceholderModule
-          title="POKÉMON MARKET"
-          icon="🃏"
-          description="Notable price movement, hot products, and upcoming releases will surface here once connected."
-        />
         <CalendarModule />
         <PlaceholderModule
           title="GOALS"
