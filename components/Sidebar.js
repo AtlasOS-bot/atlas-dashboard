@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useModule } from "../lib/moduleContext";
 import { useCurrentUser } from "../lib/currentUserContext";
 import { supabase } from "../lib/supabase";
 import { getEmailForPerson } from "../lib/currentUser";
@@ -26,7 +25,6 @@ const INVENTORY_CATEGORIES = [
 ];
 
 export default function Sidebar() {
-  const { module, setModule } = useModule();
   const { person } = useCurrentUser();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -176,22 +174,6 @@ export default function Sidebar() {
         </Link>
 
         <button
-          className={module === "resale" ? "side-active" : ""}
-          onClick={() => setModule("resale")}
-          title="Resale"
-        >
-          💰 {!collapsed && "Resale"}
-        </button>
-
-        <button
-          className={module === "tcg" ? "side-active" : ""}
-          onClick={() => setModule("tcg")}
-          title="TCG"
-        >
-          🃏 {!collapsed && "TCG"}
-        </button>
-
-        <button
           className="sidebar-section-toggle"
           onClick={() => setInventoryExpanded((prev) => !prev)}
           title="Inventory"
@@ -245,6 +227,15 @@ export default function Sidebar() {
         >
           ⚙️ {!collapsed && "Settings"}
         </Link>
+
+        <div className="sidebar-inactive-section">
+          <button disabled title="Resale">
+            💰 {!collapsed && "Resale"}
+          </button>
+          <button disabled title="TCG">
+            🃏 {!collapsed && "TCG"}
+          </button>
+        </div>
 
         {person === "N" && (
           <div className="sidebar-presence">

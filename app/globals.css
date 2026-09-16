@@ -558,6 +558,12 @@ body {
   cursor: not-allowed;
 }
 
+.sidebar-inactive-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(125, 249, 255, 0.12);
+}
+
 .sidebar-collapsed button,
 .sidebar-collapsed .sidebar-subitem {
   text-align: center;
