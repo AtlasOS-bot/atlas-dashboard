@@ -6,6 +6,7 @@ import WorthKnowing from "../../components/home/WorthKnowing";
 import RandomFact from "../../components/home/RandomFact";
 import DailyChallenge from "../../components/home/DailyChallenge";
 import InterestingHistory from "../../components/home/InterestingHistory";
+import CalendarModule from "../../components/home/CalendarModule";
 import PlaceholderModule from "../../components/home/PlaceholderModule";
 
 export default function Home() {
@@ -36,11 +37,7 @@ export default function Home() {
           icon="🃏"
           description="Notable price movement, hot products, and upcoming releases will surface here once connected."
         />
-        <PlaceholderModule
-          title="CALENDAR"
-          icon="🗓️"
-          description="Business dates, releases, and planned objectives will surface here."
-        />
+        <CalendarModule />
         <PlaceholderModule
           title="GOALS"
           icon="🧭"

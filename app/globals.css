@@ -2110,6 +2110,175 @@ img {
   cursor: pointer;
 }
 
+/* --- Calendar ---
+   A real interactive month grid inside the standard compact Home tile —
+   deliberately dense (small type, tight gaps) so it never needs to grow
+   past the tile the rest of the 2-column grid uses. The Add/Edit/View
+   panels reuse the existing .detail-panel-overlay/.detail-panel/.form-*
+   classes already used by Inventory's Add/Edit/Detail panels, so no new
+   modal system was introduced. */
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.calendar-month-label {
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.calendar-nav-button {
+  background: transparent;
+  border: 1px solid rgba(125, 249, 255, 0.3);
+  border-radius: 6px;
+  color: #7df9ff;
+  width: 22px;
+  height: 22px;
+  line-height: 1;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 2px;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.5px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.calendar-day {
+  position: relative;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day:hover {
+  background: rgba(0, 255, 255, 0.08);
+}
+
+.calendar-day-outside {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.calendar-day-today {
+  border: 1px solid #7df9ff;
+  color: #7df9ff;
+  font-weight: 600;
+}
+
+.calendar-day-selected {
+  background: rgba(0, 255, 255, 0.18);
+  color: #7df9ff;
+}
+
+.calendar-day-dot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #7df9ff;
+}
+
+.calendar-selected-day {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-selected-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.calendar-add-button {
+  background: transparent;
+  border: 1px solid rgba(125, 249, 255, 0.35);
+  border-radius: 6px;
+  color: #7df9ff;
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.calendar-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 70px;
+  overflow-y: auto;
+}
+
+.calendar-event-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid rgba(125, 249, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: white;
+  font-size: 11px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.calendar-event-time {
+  color: #7df9ff;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.calendar-event-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .calendar-day {
+    font-size: 12px;
+  }
+}
+
 /* --- Information command center grid ---
    Every Home module (AI briefing, all 4 objectives, notes, curated
    content, placeholders) is a direct child of this ONE grid — compact
