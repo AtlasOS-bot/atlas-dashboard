@@ -1,30 +1,24 @@
 "use client";
 
-import { useCurrentUser } from "../../lib/currentUserContext";
-import { getQuarterInfo } from "../../lib/homeDates";
+import { getQuarterInfo, getNextQuarterCountdown } from "../../lib/homeDates";
 
+// "NoMo" / "Nothiing & More" / SYSTEM ONLINE / Sign Out already live in the
+// compact app Header — this is deliberately just a one-line quarter/
+// countdown status strip, not a second branding block.
 export default function HomeHero() {
-  const { person } = useCurrentUser();
   const { quarterLabel, year } = getQuarterInfo();
+  const { nextQuarterLabel, daysUntil } = getNextQuarterCountdown();
+  const dayWord = daysUntil === 1 ? "day" : "days";
 
   return (
-    <header className="home-hero">
-      <div className="home-hero-glow" aria-hidden="true" />
-      <div className="home-hero-content">
-        <p className="home-hero-eyebrow">NOMO // COMMAND CENTER</p>
-        <div className="home-hero-row">
-          <span className="home-hero-person">{person || "—"}</span>
-          <span className="home-hero-divider">•</span>
-          <span className="home-hero-status">
-            <span className="home-hero-status-dot" />
-            SYSTEM ONLINE
-          </span>
-          <span className="home-hero-divider">•</span>
-          <span className="home-hero-quarter">
-            {quarterLabel} · {year}
-          </span>
-        </div>
-      </div>
-    </header>
+    <div className="home-status-strip">
+      <span>
+        {quarterLabel} · {year}
+      </span>
+      <span className="home-status-strip-divider">•</span>
+      <span>
+        {nextQuarterLabel} begins in {daysUntil} {dayWord}
+      </span>
+    </div>
   );
 }
