@@ -1,8 +1,6 @@
 import HomeHero from "../../components/home/HomeHero";
-import AiDailyBriefing from "../../components/home/AiDailyBriefing";
 import ObjectivesSection from "../../components/home/ObjectivesSection";
 import SharedNotes from "../../components/home/SharedNotes";
-import WorthKnowing from "../../components/home/WorthKnowing";
 import RandomFact from "../../components/home/RandomFact";
 import DailyChallenge from "../../components/home/DailyChallenge";
 import InterestingHistory from "../../components/home/InterestingHistory";
@@ -15,10 +13,8 @@ export default function Home() {
       <HomeHero />
 
       <div className="home-modules-grid">
-        <AiDailyBriefing />
         <ObjectivesSection />
         <SharedNotes />
-        <WorthKnowing />
         <RandomFact />
         <DailyChallenge />
         <InterestingHistory />
