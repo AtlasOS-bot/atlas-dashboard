@@ -20,6 +20,7 @@ function extractStoragePath(url) {
 function buildForm(product) {
   return {
     item_name: product.item_name || "",
+    product_link: product.product_link || "",
     brand_id: product.brand_id ? String(product.brand_id) : "",
     category_id: product.category_id ? String(product.category_id) : "",
     subcategory_id: product.subcategory_id ? String(product.subcategory_id) : "",
@@ -443,6 +444,7 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
           : null,
         purchase_date: form.purchase_date || null,
         notes: form.notes.trim() || null,
+        product_link: form.product_link.trim() || null,
       };
 
       // Snapshot what actually changed against the pre-edit product, before
@@ -675,6 +677,17 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
               type="text"
               value={form.item_name}
               onChange={(e) => updateField("item_name", e.target.value)}
+            />
+          </label>
+
+          <label className="form-field">
+            <span className="detail-label">Product Link</span>
+            <input
+              className="form-input"
+              type="text"
+              placeholder="Paste a product link"
+              value={form.product_link}
+              onChange={(e) => updateField("product_link", e.target.value)}
             />
           </label>
 
