@@ -145,10 +145,6 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
     loadOptions();
   }, []);
 
-  const visibleSubcategories = subcategories.filter(
-    (sub) => String(sub.category_id) === String(form.category_id)
-  );
-
   async function handleQuickAddBrand() {
     const created = await quickAddLookupValue("brands", brands);
     if (!created) return;
@@ -162,19 +158,6 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
     setCategories((prev) => [...prev, created]);
     updateField("category_id", String(created.id));
     updateField("subcategory_id", "");
-  }
-
-  async function handleQuickAddSubcategory() {
-    if (!form.category_id) {
-      alert("Select a category first.");
-      return;
-    }
-    const created = await quickAddLookupValue("subcategories", visibleSubcategories, {
-      category_id: Number(form.category_id),
-    });
-    if (!created) return;
-    setSubcategories((prev) => [...prev, created]);
-    updateField("subcategory_id", String(created.id));
   }
 
   async function handleQuickAddStorageLocation() {
@@ -742,17 +725,6 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
               }}
               options={categories}
               onAdd={handleQuickAddCategory}
-            />
-          </label>
-
-          <label className="form-field">
-            <span className="detail-label">Subcategory</span>
-            <SelectWithQuickAdd
-              value={form.subcategory_id}
-              onChange={(value) => updateField("subcategory_id", value)}
-              options={visibleSubcategories}
-              onAdd={handleQuickAddSubcategory}
-              disabled={!form.category_id}
             />
           </label>
 
