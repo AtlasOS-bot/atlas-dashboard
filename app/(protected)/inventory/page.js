@@ -180,7 +180,7 @@ function MasterInventoryPageInner() {
         subcategory:subcategories(name),
         storage_location:storage_locations(name),
         purchase_source:purchase_sources(name),
-        product_platforms(platform_id, is_listed, listing_url, platform:platforms(name)),
+        product_platforms(platform_id, person, is_listed, listing_url, platform:platforms(name)),
         product_images(id, image_url, is_main, sort_order)
       `);
 

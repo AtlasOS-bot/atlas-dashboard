@@ -3,11 +3,39 @@ function formatCurrency(value) {
   return `$${Number(value).toFixed(2)}`;
 }
 
+// Collapses a platform's N/M rows into one label. Legacy rows with no
+// person (from before per-person tracking existed) are ignored here —
+// they're not attributable to N or M, so they don't factor into who's
+// listed, but they're never deleted either (see the migration).
+function platformPeopleLabel(rows) {
+  const hasN = rows.some((pp) => pp.person === "N");
+  const hasM = rows.some((pp) => pp.person === "M");
+  if (hasN && hasM) return "N + M";
+  if (hasN) return "N";
+  if (hasM) return "M";
+  return "Not listed";
+}
+
 export default function InventoryDetailPanel({ product, onClose, onEdit }) {
   const images = product.product_images || [];
   const mainImage = images.find((img) => img.is_main);
   const additionalImages = images.filter((img) => !img.is_main);
-  const platforms = product.product_platforms || [];
+
+  const platformRows = product.product_platforms || [];
+  const platformSummaries = [];
+  const seenPlatformIds = new Set();
+  platformRows.forEach((pp) => {
+    if (!pp.platform_id || seenPlatformIds.has(pp.platform_id)) return;
+    seenPlatformIds.add(pp.platform_id);
+    const rowsForPlatform = platformRows.filter(
+      (row) => row.platform_id === pp.platform_id
+    );
+    platformSummaries.push({
+      platformId: pp.platform_id,
+      name: pp.platform?.name,
+      label: platformPeopleLabel(rowsForPlatform),
+    });
+  });
 
   return (
     <div className="detail-panel-overlay" onClick={onClose}>
@@ -65,12 +93,6 @@ export default function InventoryDetailPanel({ product, onClose, onEdit }) {
             <span className="detail-label">Category</span>
             <span className="detail-value">{product.category?.name || "—"}</span>
           </div>
-          <div className="detail-row">
-            <span className="detail-label">Subcategory</span>
-            <span className="detail-value">
-              {product.subcategory?.name || "—"}
-            </span>
-          </div>
 
           <div className="detail-divider" />
 
@@ -83,24 +105,8 @@ export default function InventoryDetailPanel({ product, onClose, onEdit }) {
             <span className="detail-value">{product.m_quantity}</span>
           </div>
           <div className="detail-row">
-            <span className="detail-label">Shared Qty</span>
-            <span className="detail-value">{product.shared_quantity}</span>
-          </div>
-          <div className="detail-row">
             <span className="detail-label">Total Qty</span>
             <span className="detail-value">{product.total_quantity}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Status</span>
-            <span
-              className={
-                product.status === "Out of Stock"
-                  ? "inventory-status inventory-status-out"
-                  : "inventory-status inventory-status-in"
-              }
-            >
-              {product.status}
-            </span>
           </div>
 
           <div className="detail-divider" />
@@ -151,29 +157,20 @@ export default function InventoryDetailPanel({ product, onClose, onEdit }) {
 
           <div className="detail-divider" />
 
-          <div className="detail-row detail-row-platforms">
+          <div className="detail-row-platforms">
             <span className="detail-label">Platforms</span>
-            <div className="inventory-platform-badges">
-              {platforms.length === 0 ? (
-                <span className="detail-value">—</span>
+            <div className="platform-summary-list">
+              {platformSummaries.filter((p) => p.label !== "Not listed").length === 0 ? (
+                <span className="platform-summary-muted">Not listed</span>
               ) : (
-                platforms.map((pp, index) =>
-                  pp.is_listed && pp.listing_url ? (
-                    <a
-                      key={index}
-                      href={pp.listing_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="platform-badge platform-badge-listed"
-                    >
-                      {pp.platform?.name}
-                    </a>
-                  ) : (
-                    <span key={index} className="platform-badge">
-                      {pp.platform?.name}
-                    </span>
-                  )
-                )
+                platformSummaries
+                  .filter((p) => p.label !== "Not listed")
+                  .map((p) => (
+                    <div key={p.platformId} className="platform-summary-row">
+                      <span className="platform-summary-name">{p.name}</span>
+                      <span className="platform-summary-people">{p.label}</span>
+                    </div>
+                  ))
               )}
             </div>
           </div>

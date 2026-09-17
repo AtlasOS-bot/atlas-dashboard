@@ -10,6 +10,17 @@ import { devLog } from "../lib/devLog";
 
 const LOOKUP_DEBOUNCE_MS = 600;
 
+// The four platforms with per-person (N/M) listing tracking. Selecting one
+// of these attributes the resulting product_platforms row to whichever
+// person is currently authenticated. Any other platform keeps the prior,
+// person-less behavior exactly as it worked before that tracking existed.
+const PERSON_TRACKED_PLATFORM_NAMES = [
+  "Mercari",
+  "eBay",
+  "Facebook Marketplace",
+  "OfferUp",
+];
+
 const emptyForm = {
   item_name: "",
   brand_id: "",
@@ -479,12 +490,22 @@ export default function AddItemPanel({ onClose, onCreated }) {
       }
 
       const platformRows = Object.entries(selectedPlatforms).map(
-        ([platformId, details]) => ({
-          product_id: product.id,
-          platform_id: Number(platformId),
-          is_listed: details.is_listed,
-          listing_url: details.listing_url.trim() || null,
-        })
+        ([platformId, details]) => {
+          const platform = platforms.find(
+            (p) => String(p.id) === String(platformId)
+          );
+          const isPersonTracked = Boolean(
+            platform && PERSON_TRACKED_PLATFORM_NAMES.includes(platform.name)
+          );
+
+          return {
+            product_id: product.id,
+            platform_id: Number(platformId),
+            is_listed: isPersonTracked ? true : details.is_listed,
+            listing_url: details.listing_url.trim() || null,
+            person: isPersonTracked ? person : null,
+          };
+        }
       );
 
       if (platformRows.length > 0) {

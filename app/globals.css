@@ -931,27 +931,6 @@ body {
   border: 1px solid rgba(239, 68, 68, 0.5);
 }
 
-.inventory-platform-badges {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.platform-badge {
-  border: 1px solid rgba(125, 249, 255, 0.2);
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.55);
-  white-space: nowrap;
-}
-
-.platform-badge-listed {
-  color: #7df9ff;
-  border-color: rgba(125, 249, 255, 0.5);
-  text-decoration: none;
-}
-
 /* Slide-over detail panel */
 
 .detail-panel-overlay {
@@ -1045,6 +1024,42 @@ body {
 .detail-row-notes {
   flex-direction: column;
   align-items: flex-start;
+}
+
+.detail-row-platforms {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.platform-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.platform-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.platform-summary-name {
+  color: white;
+}
+
+.platform-summary-people {
+  color: #7df9ff;
+  font-weight: 600;
+}
+
+.platform-summary-muted {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
 }
 
 .detail-label {
@@ -1171,6 +1186,50 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.platform-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.platform-toggle-name {
+  color: white;
+  font-size: 14px;
+}
+
+.platform-toggle-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+}
+
+.platform-toggle-summary-active {
+  color: #7df9ff;
+}
+
+.platform-toggle-chevron {
+  color: rgba(125, 249, 255, 0.7);
+  font-size: 12px;
+}
+
+.platform-nm-options {
+  margin-top: 10px;
+  padding-left: 4px;
+  display: flex;
+  gap: 24px;
 }
 
 .form-save-button {
@@ -1649,7 +1708,8 @@ img {
   .inventory-add-button.form-save-button,
   .delete-item-button,
   .detail-panel-close,
-  .detail-panel-edit {
+  .detail-panel-edit,
+  .platform-toggle-row {
     min-height: 44px;
   }
 

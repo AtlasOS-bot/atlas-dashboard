@@ -11,6 +11,13 @@ import { devLog } from "../lib/devLog";
 const UNCONFIGURED_ACCOUNT_MESSAGE =
   "Your account isn't set up for inventory changes yet. Contact the workspace owner to get this fixed.";
 
+// The only platforms actively tracked in Edit Item. Other configured
+// platforms (Whatnot, Shopify, Etsy, TikTok Shop, ...) still exist in the
+// platforms table and in Settings — they're just not part of this
+// per-person listing UI. Order here is the display order, independent of
+// each platform's sort_order in the database.
+const TARGET_PLATFORM_NAMES = ["Mercari", "eBay", "Facebook Marketplace", "OfferUp"];
+
 function extractStoragePath(url) {
   const marker = "/product-images/";
   const idx = url.indexOf(marker);
@@ -40,17 +47,29 @@ function buildForm(product) {
   };
 }
 
-function buildPlatforms(product) {
+// Per platform_id: { N: boolean, M: boolean }. Legacy rows with no person
+// (from before per-person tracking existed) are intentionally ignored
+// here — there's no reliable source for whether they belonged to N or M,
+// so this UI never guesses. Those rows are left untouched in the database
+// (see the migration) but simply don't appear as a selection here.
+function buildPlatformSelections(product) {
   const initial = {};
   (product.product_platforms || []).forEach((pp) => {
-    if (pp.platform_id) {
-      initial[pp.platform_id] = {
-        is_listed: pp.is_listed,
-        listing_url: pp.listing_url || "",
-      };
+    if (!pp.platform_id || (pp.person !== "N" && pp.person !== "M")) return;
+    if (!initial[pp.platform_id]) {
+      initial[pp.platform_id] = { N: false, M: false };
     }
+    initial[pp.platform_id][pp.person] = true;
   });
   return initial;
+}
+
+function platformSummaryLabel(selection) {
+  if (!selection) return "Not listed";
+  if (selection.N && selection.M) return "N + M";
+  if (selection.N) return "N";
+  if (selection.M) return "M";
+  return "Not listed";
 }
 
 export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) {
@@ -68,12 +87,13 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
 
   const [images, setImages] = useState(product.product_images || []);
 
-  const [selectedPlatforms, setSelectedPlatforms] = useState(() =>
-    buildPlatforms(product)
+  const [platformSelections, setPlatformSelections] = useState(() =>
+    buildPlatformSelections(product)
   );
-  const [savedPlatforms, setSavedPlatforms] = useState(() =>
-    buildPlatforms(product)
+  const [savedPlatformSelections, setSavedPlatformSelections] = useState(() =>
+    buildPlatformSelections(product)
   );
+  const [expandedPlatforms, setExpandedPlatforms] = useState({});
 
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -82,7 +102,11 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
 
   const isDirty =
     JSON.stringify(form) !== JSON.stringify(savedForm) ||
-    JSON.stringify(selectedPlatforms) !== JSON.stringify(savedPlatforms);
+    JSON.stringify(platformSelections) !== JSON.stringify(savedPlatformSelections);
+
+  const visiblePlatforms = TARGET_PLATFORM_NAMES.map((name) =>
+    platforms.find((p) => p.name === name)
+  ).filter(Boolean);
 
   function requestClose() {
     if (isDirty) {
@@ -167,37 +191,22 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
     updateField("purchase_source_id", String(created.id));
   }
 
-  async function handleQuickAddPlatform() {
-    const created = await quickAddLookupValue("platforms", platforms);
-    if (!created) return;
-    setPlatforms((prev) => [...prev, created]);
-    setSelectedPlatforms((prev) => ({
-      ...prev,
-      [created.id]: { is_listed: false, listing_url: "" },
-    }));
-  }
-
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
-  function togglePlatform(platformId) {
-    setSelectedPlatforms((prev) => {
-      const next = { ...prev };
-      if (next[platformId]) {
-        delete next[platformId];
-      } else {
-        next[platformId] = { is_listed: false, listing_url: "" };
-      }
-      return next;
+  function togglePlatformPerson(platformId, personKey) {
+    setPlatformSelections((prev) => {
+      const current = prev[platformId] || { N: false, M: false };
+      return {
+        ...prev,
+        [platformId]: { ...current, [personKey]: !current[personKey] },
+      };
     });
   }
 
-  function updatePlatformField(platformId, field, value) {
-    setSelectedPlatforms((prev) => ({
-      ...prev,
-      [platformId]: { ...prev[platformId], [field]: value },
-    }));
+  function togglePlatformExpanded(platformId) {
+    setExpandedPlatforms((prev) => ({ ...prev, [platformId]: !prev[platformId] }));
   }
 
   async function uploadImage(file, prefix) {
@@ -483,7 +492,7 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
       }
 
       const platformsChanged =
-        JSON.stringify(selectedPlatforms) !== JSON.stringify(savedPlatforms);
+        JSON.stringify(platformSelections) !== JSON.stringify(savedPlatformSelections);
 
       const { error: updateError } = await supabase
         .from("products")
@@ -506,23 +515,45 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
       const warnings = [];
       let platformsSaved = true;
 
-      const { error: clearError } = await supabase
-        .from("product_platforms")
-        .delete()
-        .eq("product_id", product.id);
+      // Scoped to only the 4 tracked platforms and only N/M rows — this
+      // never touches rows for other platforms (Whatnot, Shopify, etc.) or
+      // legacy pre-migration rows with no person, so that data is never
+      // lost just because this UI only edits four platforms.
+      const visiblePlatformIds = visiblePlatforms.map((p) => p.id);
+
+      const { error: clearError } =
+        visiblePlatformIds.length > 0
+          ? await supabase
+              .from("product_platforms")
+              .delete()
+              .eq("product_id", product.id)
+              .in("platform_id", visiblePlatformIds)
+              .in("person", ["N", "M"])
+          : { error: null };
 
       if (clearError) {
         platformsSaved = false;
         warnings.push("Platform details could not be updated.");
       } else {
-        const platformRows = Object.entries(selectedPlatforms).map(
-          ([platformId, details]) => ({
-            product_id: product.id,
-            platform_id: Number(platformId),
-            is_listed: details.is_listed,
-            listing_url: details.listing_url.trim() || null,
-          })
-        );
+        const platformRows = [];
+        Object.entries(platformSelections).forEach(([platformId, selection]) => {
+          if (selection.N) {
+            platformRows.push({
+              product_id: product.id,
+              platform_id: Number(platformId),
+              person: "N",
+              is_listed: true,
+            });
+          }
+          if (selection.M) {
+            platformRows.push({
+              product_id: product.id,
+              platform_id: Number(platformId),
+              person: "M",
+              is_listed: true,
+            });
+          }
+        });
 
         if (platformRows.length > 0) {
           let { error: platformError } = await supabase
@@ -545,7 +576,7 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
       }
 
       if (platformsSaved) {
-        setSavedPlatforms(selectedPlatforms);
+        setSavedPlatformSelections(platformSelections);
 
         if (platformsChanged) {
           await logHistory({
@@ -824,63 +855,55 @@ export default function EditItemPanel({ product, onClose, onSaved, onDeleted }) 
           <div className="detail-divider" />
 
           <div className="form-field">
-            <div className="detail-label-row">
-              <span className="detail-label">Platforms</span>
-              <button
-                type="button"
-                className="quick-add-button"
-                onClick={handleQuickAddPlatform}
-                title="Add new platform"
-              >
-                +
-              </button>
-            </div>
+            <span className="detail-label">Platforms</span>
             <div className="platform-form-list">
-              {platforms.map((platform) => {
-                const selected = selectedPlatforms[platform.id];
+              {visiblePlatforms.map((platform) => {
+                const selection = platformSelections[platform.id];
+                const expanded = Boolean(expandedPlatforms[platform.id]);
+                const hasSelection = Boolean(selection?.N || selection?.M);
                 return (
                   <div key={platform.id} className="platform-form-row">
-                    <label className="platform-checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={Boolean(selected)}
-                        onChange={() => togglePlatform(platform.id)}
-                      />
-                      {platform.name}
-                    </label>
+                    <button
+                      type="button"
+                      className="platform-toggle-row"
+                      onClick={() => togglePlatformExpanded(platform.id)}
+                      aria-expanded={expanded}
+                    >
+                      <span className="platform-toggle-name">{platform.name}</span>
+                      <span className="platform-toggle-right">
+                        <span
+                          className={
+                            hasSelection
+                              ? "platform-toggle-summary-active"
+                              : undefined
+                          }
+                        >
+                          {platformSummaryLabel(selection)}
+                        </span>
+                        <span className="platform-toggle-chevron">
+                          {expanded ? "▴" : "▾"}
+                        </span>
+                      </span>
+                    </button>
 
-                    {selected && (
-                      <div className="platform-form-details">
+                    {expanded && (
+                      <div className="platform-nm-options">
                         <label className="platform-checkbox-label">
                           <input
                             type="checkbox"
-                            checked={selected.is_listed}
-                            onChange={(e) =>
-                              updatePlatformField(
-                                platform.id,
-                                "is_listed",
-                                e.target.checked
-                              )
-                            }
+                            checked={Boolean(selection?.N)}
+                            onChange={() => togglePlatformPerson(platform.id, "N")}
                           />
-                          Listed
+                          N
                         </label>
-
-                        {selected.is_listed && (
+                        <label className="platform-checkbox-label">
                           <input
-                            className="form-input"
-                            type="text"
-                            placeholder="Listing URL"
-                            value={selected.listing_url}
-                            onChange={(e) =>
-                              updatePlatformField(
-                                platform.id,
-                                "listing_url",
-                                e.target.value
-                              )
-                            }
+                            type="checkbox"
+                            checked={Boolean(selection?.M)}
+                            onChange={() => togglePlatformPerson(platform.id, "M")}
                           />
-                        )}
+                          M
+                        </label>
                       </div>
                     )}
                   </div>
