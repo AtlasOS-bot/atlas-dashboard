@@ -61,6 +61,7 @@ export default function AddItemPanel({ onClose, onCreated }) {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [extraSettingsOpen, setExtraSettingsOpen] = useState(false);
 
   useEffect(() => {
     async function loadOptions() {
@@ -254,10 +255,6 @@ export default function AddItemPanel({ onClose, onCreated }) {
     return null;
   }
 
-  const visibleSubcategories = subcategories.filter(
-    (sub) => String(sub.category_id) === String(form.category_id)
-  );
-
   async function handleQuickAddBrand() {
     const created = await quickAddLookupValue("brands", brands);
     if (!created) return;
@@ -271,19 +268,6 @@ export default function AddItemPanel({ onClose, onCreated }) {
     setCategories((prev) => [...prev, created]);
     updateField("category_id", String(created.id));
     updateField("subcategory_id", "");
-  }
-
-  async function handleQuickAddSubcategory() {
-    if (!form.category_id) {
-      alert("Select a category first.");
-      return;
-    }
-    const created = await quickAddLookupValue("subcategories", visibleSubcategories, {
-      category_id: Number(form.category_id),
-    });
-    if (!created) return;
-    setSubcategories((prev) => [...prev, created]);
-    updateField("subcategory_id", String(created.id));
   }
 
   async function handleQuickAddStorageLocation() {
@@ -586,6 +570,16 @@ export default function AddItemPanel({ onClose, onCreated }) {
 
         <div className="detail-panel-body">
           <label className="form-field">
+            <span className="detail-label">Item Name *</span>
+            <input
+              className="form-input"
+              type="text"
+              value={form.item_name}
+              onChange={(e) => updateField("item_name", e.target.value)}
+            />
+          </label>
+
+          <label className="form-field">
             <span className="detail-label">Product Link</span>
             <input
               className="form-input"
@@ -602,18 +596,6 @@ export default function AddItemPanel({ onClose, onCreated }) {
             )}
           </label>
 
-          <div className="detail-divider" />
-
-          <label className="form-field">
-            <span className="detail-label">Item Name *</span>
-            <input
-              className="form-input"
-              type="text"
-              value={form.item_name}
-              onChange={(e) => updateField("item_name", e.target.value)}
-            />
-          </label>
-
           <label className="form-field">
             <span className="detail-label">Brand</span>
             <SelectWithQuickAdd
@@ -621,30 +603,6 @@ export default function AddItemPanel({ onClose, onCreated }) {
               onChange={(value) => updateField("brand_id", value)}
               options={brands}
               onAdd={handleQuickAddBrand}
-            />
-          </label>
-
-          <label className="form-field">
-            <span className="detail-label">Category</span>
-            <SelectWithQuickAdd
-              value={form.category_id}
-              onChange={(value) => {
-                updateField("category_id", value);
-                updateField("subcategory_id", "");
-              }}
-              options={categories}
-              onAdd={handleQuickAddCategory}
-            />
-          </label>
-
-          <label className="form-field">
-            <span className="detail-label">Subcategory</span>
-            <SelectWithQuickAdd
-              value={form.subcategory_id}
-              onChange={(value) => updateField("subcategory_id", value)}
-              options={visibleSubcategories}
-              onAdd={handleQuickAddSubcategory}
-              disabled={!form.category_id}
             />
           </label>
 
@@ -675,14 +633,13 @@ export default function AddItemPanel({ onClose, onCreated }) {
           </label>
 
           <label className="form-field">
-            <span className="detail-label">Shared Qty</span>
+            <span className="detail-label">Total Qty</span>
             <input
               className="form-input"
               type="number"
-              min="0"
-              step="1"
-              value={form.shared_quantity}
-              onChange={(e) => updateField("shared_quantity", e.target.value)}
+              value={Number(form.n_quantity || 0) + Number(form.m_quantity || 0)}
+              disabled
+              readOnly
             />
           </label>
 
@@ -711,106 +668,6 @@ export default function AddItemPanel({ onClose, onCreated }) {
               onChange={(e) => updateField("market_price", e.target.value)}
             />
           </label>
-
-          <div className="detail-divider" />
-
-          <label className="form-field">
-            <span className="detail-label">Storage Location</span>
-            <SelectWithQuickAdd
-              value={form.storage_location_id}
-              onChange={(value) => updateField("storage_location_id", value)}
-              options={storageLocations}
-              onAdd={handleQuickAddStorageLocation}
-            />
-          </label>
-
-          <label className="form-field">
-            <span className="detail-label">Purchase Source</span>
-            <SelectWithQuickAdd
-              value={form.purchase_source_id}
-              onChange={(value) => updateField("purchase_source_id", value)}
-              options={purchaseSources}
-              onAdd={handleQuickAddPurchaseSource}
-            />
-          </label>
-
-          <label className="form-field">
-            <span className="detail-label">Purchase Date</span>
-            <input
-              className="form-input"
-              type="date"
-              value={form.purchase_date}
-              onChange={(e) => updateField("purchase_date", e.target.value)}
-            />
-          </label>
-
-          <div className="detail-divider" />
-
-          <div className="form-field">
-            <div className="detail-label-row">
-              <span className="detail-label">Platforms</span>
-              <button
-                type="button"
-                className="quick-add-button"
-                onClick={handleQuickAddPlatform}
-                title="Add new platform"
-              >
-                +
-              </button>
-            </div>
-            <div className="platform-form-list">
-              {platforms.map((platform) => {
-                const selected = selectedPlatforms[platform.id];
-                return (
-                  <div key={platform.id} className="platform-form-row">
-                    <label className="platform-checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={Boolean(selected)}
-                        onChange={() => togglePlatform(platform.id)}
-                      />
-                      {platform.name}
-                    </label>
-
-                    {selected && (
-                      <div className="platform-form-details">
-                        <label className="platform-checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={selected.is_listed}
-                            onChange={(e) =>
-                              updatePlatformField(
-                                platform.id,
-                                "is_listed",
-                                e.target.checked
-                              )
-                            }
-                          />
-                          Listed
-                        </label>
-
-                        {selected.is_listed && (
-                          <input
-                            className="form-input"
-                            type="text"
-                            placeholder="Listing URL"
-                            value={selected.listing_url}
-                            onChange={(e) =>
-                              updatePlatformField(
-                                platform.id,
-                                "listing_url",
-                                e.target.value
-                              )
-                            }
-                          />
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
 
           <div className="detail-divider" />
 
@@ -865,6 +722,135 @@ export default function AddItemPanel({ onClose, onCreated }) {
               onChange={(e) => updateField("notes", e.target.value)}
             />
           </label>
+
+          <div className="platform-form-row">
+            <button
+              type="button"
+              className="platform-toggle-row"
+              onClick={() => setExtraSettingsOpen((prev) => !prev)}
+              aria-expanded={extraSettingsOpen}
+            >
+              <span className="platform-toggle-name">Extra Settings</span>
+              <span className="platform-toggle-chevron">
+                {extraSettingsOpen ? "▴" : "▾"}
+              </span>
+            </button>
+
+            {extraSettingsOpen && (
+              <div className="extra-settings-content">
+                <label className="form-field">
+                  <span className="detail-label">Category</span>
+                  <SelectWithQuickAdd
+                    value={form.category_id}
+                    onChange={(value) => {
+                      updateField("category_id", value);
+                      updateField("subcategory_id", "");
+                    }}
+                    options={categories}
+                    onAdd={handleQuickAddCategory}
+                  />
+                </label>
+
+                <label className="form-field">
+                  <span className="detail-label">Storage Location</span>
+                  <SelectWithQuickAdd
+                    value={form.storage_location_id}
+                    onChange={(value) => updateField("storage_location_id", value)}
+                    options={storageLocations}
+                    onAdd={handleQuickAddStorageLocation}
+                  />
+                </label>
+
+                <label className="form-field">
+                  <span className="detail-label">Purchase Source</span>
+                  <SelectWithQuickAdd
+                    value={form.purchase_source_id}
+                    onChange={(value) => updateField("purchase_source_id", value)}
+                    options={purchaseSources}
+                    onAdd={handleQuickAddPurchaseSource}
+                  />
+                </label>
+
+                <label className="form-field">
+                  <span className="detail-label">Purchase Date</span>
+                  <input
+                    className="form-input"
+                    type="date"
+                    value={form.purchase_date}
+                    onChange={(e) => updateField("purchase_date", e.target.value)}
+                  />
+                </label>
+
+                <div className="detail-divider" />
+
+                <div className="form-field">
+                  <div className="detail-label-row">
+                    <span className="detail-label">Platforms</span>
+                    <button
+                      type="button"
+                      className="quick-add-button"
+                      onClick={handleQuickAddPlatform}
+                      title="Add new platform"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="platform-form-list">
+                    {platforms.map((platform) => {
+                      const selected = selectedPlatforms[platform.id];
+                      return (
+                        <div key={platform.id} className="platform-form-row">
+                          <label className="platform-checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(selected)}
+                              onChange={() => togglePlatform(platform.id)}
+                            />
+                            {platform.name}
+                          </label>
+
+                          {selected && (
+                            <div className="platform-form-details">
+                              <label className="platform-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={selected.is_listed}
+                                  onChange={(e) =>
+                                    updatePlatformField(
+                                      platform.id,
+                                      "is_listed",
+                                      e.target.checked
+                                    )
+                                  }
+                                />
+                                Listed
+                              </label>
+
+                              {selected.is_listed && (
+                                <input
+                                  className="form-input"
+                                  type="text"
+                                  placeholder="Listing URL"
+                                  value={selected.listing_url}
+                                  onChange={(e) =>
+                                    updatePlatformField(
+                                      platform.id,
+                                      "listing_url",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           <button
             className="inventory-add-button form-save-button"

@@ -1232,6 +1232,13 @@ body {
   gap: 24px;
 }
 
+.extra-settings-content {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .form-save-button {
   width: 100%;
   margin-top: 12px;
